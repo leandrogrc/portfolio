@@ -1,0 +1,49 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main, master ]  # Aciona no push para main/master
+  workflow_dispatch:            # Permite trigger manual
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Adiciona o host aos known_hosts para evitar prompt
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Server
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            cd /var/www/leandrogrc.dev/html
+            
+            # Faz o pull das alterações
+            echo '🔄 Fazendo pull do repositório...'
+            git pull origin main
+            
+            # Verifica o resultado
+            echo '✅ Deploy concluído!'
+            echo '📁 Conteúdo do diretório:'
+            ls -la
+          "
+
+      - name: Verify Deployment
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            echo '📋 Verificando deploy em /var/www/leandrogrc.dev/html:'
+            cd /var/www/leandrogrc.dev/html
+            git log --oneline -5
+            echo ''
+            echo '📂 Arquivos atuais:'
+            ls -la
+          "
