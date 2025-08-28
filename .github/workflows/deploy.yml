@@ -25,7 +25,7 @@ jobs:
       - name: Deploy to Server
         run: |
           ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
-            cd /var/www/leandrogrc.dev/html
+            cd ~/apps/meu-app/nginx-docker/html
             
             # Faz o pull das alterações
             echo '🔄 Fazendo pull do repositório...'
