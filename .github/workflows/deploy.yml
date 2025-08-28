@@ -24,7 +24,7 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          ssh -i ~/.ssh/deploy_key ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+          ssh -i ~/.ssh/deploy_key -tt ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
             cd ~/apps/meu-app/nginx-docker/html
             
             # Faz o pull das alterações
